@@ -1,0 +1,127 @@
+---
+title: "Prop 21"
+author: "Luke Yee"
+date: "9/18/2020"
+output: html_document
+---
+```{r, message = FALSE}
+library(tidyverse)
+library(haven)
+```
+
+```{r}
+vs_unemployment <- Vital_Signs_Unemployment_Rate_by_county %>% filter(Year < 2002)
+vs_production <- Vital_Signs_Housing_Production_by_county %>% filter(Year < 2002)
+vs_affordability <- Vital_Signs_Housing_Affordability_County_Overall %>% filter(Year < 2002)
+vs_price <- Vital_Signs_Home_Prices_by_county %>% filter(Year < 2002)
+vs_risk <- Vital_Signs_Displacement_Risk_by_county %>% filter(Year < 2002)
+```
+
+
+```{r}
+#comparison of two counties as example
+
+(Vital_Signs_Displacement_Risk_by_county %>% filter(Year == 2017) %>% filter(County == "Alameda County"))$Displacement_Risk
+
+(Vital_Signs_Displacement_Risk_by_county %>% filter(Year == 2017) %>% filter(County == "Contra Costa County"))$Displacement_Risk
+#displacement risk example. displacement is important because if the displacement risk suddenly increases, it could mean housing is getting to expensive
+
+
+#recode a column to allow easier manipulation
+vs_affordability_recode <- Vital_Signs_Housing_Affordability_County_Overall %>% mutate(Housing_Burden2 = recode(
+  Housing_Burden,
+  "Less than 20% of income" = 1,
+  "20% to 34% of income" = 2,
+  "At least 35% of income" = 3,
+))
+
+table((vs_affordability_recode %>% filter(Geography == "Alameda County") %>%
+         filter(Household_Type == "All") %>%
+         filter(Year == 2017))$Housing_Burden, 
+      (vs_affordability_recode %>% filter(Geography == "Alameda County") %>%
+         filter(Household_Type == "All") %>%
+         filter(Year == 2017))$Share)
+
+table((vs_affordability_recode %>% filter(Geography == "Contra Costa County") %>%
+         filter(Household_Type == "All") %>%
+         filter(Year == 2017))$Housing_Burden, 
+      (vs_affordability_recode %>% filter(Geography == "Contra Costa County") %>%
+         filter(Household_Type == "All") %>%
+         filter(Year == 2017))$Share)
+#shows the percent of income people spend on their monthly rent, and compares between
+#a county that has rent control and one that has no rent control
+
+
+production_a <- (Vital_Signs_Housing_Production_by_county %>% filter(between(Year, 1999, 2018)) %>% filter(County == "Alameda County"))$TOTALproduction
+
+production_b <- (Vital_Signs_Housing_Production_by_county %>% filter(between(Year, 1999, 2018)) %>% filter(County == "Contra Costa County"))$TOTALproduction 
+t.test(production_a, production_b)
+#t-score is 0.58, p-value 0.5656. Housing production is the core of the issue to look at in #these rent control issues.
+#The reason being, arguments against rent control primarily hinge on the idea that 
+#rent control dis-encourages houses being built because there is less profit in it for developers
+```
+
+
+```{r}
+#prop 21 will repeal costa hawkins and bring back stronger rent control. As such, we are going back in time and seeing if, when costa hawkins lifted rent control, there was a sudden increase in the amount of houses that were built because developers now had incentive.
+pre_costa <- dataset %>% filter(between(year, 1975,1995)) 
+post_costa <- dataset %>% filter(year > 1995)
+
+t.test(pre_costa$net_new_housing, post_costa$net_new_housing)
+#t-score is -2.17, p-value is 0.037
+```
+
+```{r}
+#age as proxy for new houses being built. The average age will decrease if new houses are being built. If enough new houses are built, the average age will drop suddenly. 
+set1<- housingdata_91 %>% filter(REGION == 4 & METRO == 1)
+mean(set1$BUILT, na.rm = TRUE) #1918.8, age = 72.3
+
+set2<- housingdata_93 %>% filter(REGION == 4 & METRO == 1)
+mean(set2$BUILT, na.rm = TRUE) #1919.2, age = 71.8
+sd(set2$BUILT) #sd is 31
+
+set3<- housingdata_97 %>% filter(REGION == '\'4\'' & METRO3 == '\'1\'')
+mean(set3$BUILT, na.rm = TRUE) #1959.5, age = 37.5
+sd(set3$BUILT) #sd is 21 
+
+set4<- housingdata_99 %>% filter(REGION == '\'4\'' & METRO3 == '\'1\'')
+mean(set4$BUILT, na.rm = TRUE) #1959.4, age = 39.6
+
+#so, post hawkins more encouragement to build houses.
+t.value1 <- (59.5 - 19.2)/sqrt((31^2/4232) + (21^2/3197))
+#t-score is 66, extremely significant
+```
+
+
+```{r}
+set1_st <- set1 %>% filter(set1$FMTStatus == "\'3 Vacant\'" & set1$VALUE < fivenum(set1$VALUE[set1$VALUE >0])[4] )
+nrow(set1_st)/nrow(set1)
+
+set2_st <- set2 %>% filter(set2$FMTStatus == "\'3 Vacant\'")
+nrow(set2_st)/nrow(set2)
+
+set3_st <- set3 %>% filter(set3$STATUS == "\'3\'")
+nrow(set3_st)/nrow(set3)
+
+set4_st <- set4 %>% filter(set4$STATUS == "\'3\'")
+nrow(set4_st)/nrow(set4)
+#these show that the vacancy rates stayed roughly constant before and after costa hawkins. This was important to check because if there was a sudden increase in vacancy after costa hawkins, it would loosely imply that more housing was available or built.
+
+table(set1$FMTStructureType)
+table(set2$FMTStructureType)
+table(set3$FMTSTRUCTURETYPE)
+table(set4$FMTSTRUCTURETYPE)
+#these show the number of structure types before and after costa hawkins. We were checking to
+#see if certain types of homes would be built more or less due to rent control. still constant
+```
+
+```{r}
+#compare the production of houses in the bay area before costa hawkins and after costa hawkins
+prod1_vec<- (vs_production %>% filter(Year <= 1995))$TOTALproduction
+
+prod2_vec <- (vs_production %>% filter(Year > 1995))$TOTALproduction
+
+t.test(prod1_vec, prod2_vec)
+#t-score of -2.44, p-value 0.016, significant. The evidence suggests that lifting rent control does indeed increase housing production. However, as prop 21 is re-instating strong rent control, we can guess that less houses will be produced.
+```
+
