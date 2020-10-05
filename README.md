@@ -1,8 +1,8 @@
 # Otter_team_6
-CA Proposition 21 research.
+CA Proposition 21 research. datasests used include:
 
 
-https://www.huduser.gov/portal/datasets/hads/HADS_doc.pdf
+https://www.huduser.gov/portal/datasets/hads/hads.html
 
 
 https://www.openicpsr.org/openicpsr/project/116215/version/V1/view
