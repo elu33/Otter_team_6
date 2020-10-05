@@ -1,5 +1,11 @@
 # Otter_team_6
-CA Proposition 21 research. Datasests used include:
+CA Proposition 21 research. Research Question: Does stricter rent control truly does disincentivize land developers from building new housing?
+
+
+Motivation: Concerns of homelessness and housing insecurity among students in UC Davis, as well as personal interest in real estate and housing in California
+
+
+Datasests used include:
 
 
 https://www.huduser.gov/portal/datasets/hads/hads.html
