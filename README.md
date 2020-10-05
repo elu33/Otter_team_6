@@ -26,4 +26,4 @@ DataManagementPlan is an outline of how we managed the data
 prop21_visuals includes the code for the data visualization application created for this project
 
 
-data visualization output can be seen in the data visualization pdf. it contains screenshots of the web application that was created for this repository. Further examples of this app's functionality can be given upon request.
+Data visualization output can be seen in the data visualization pdf. It contains screenshots of the web application that was created for this repository. Further examples of this app's functionality can be given upon request.
